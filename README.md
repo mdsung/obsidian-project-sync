@@ -1,6 +1,6 @@
 # Obsidian Project Sync
 
-🔄 Bidirectional synchronization tool between local project notes and Obsidian vault using Local REST API and ngrok.
+🔄 Bidirectional synchronization tool between local project notes and Obsidian vault using Local REST API.
 
 ## Features
 
@@ -9,25 +9,50 @@
 - 🛡️ **Conflict Resolution**: Smart handling of simultaneous edits
 - 💾 **Auto Backup**: Create backups before sync operations
 - 🔔 **Notifications**: Slack/Discord integration for sync status
-- 🌐 **Remote Access**: ngrok tunnel for server-based projects
+- 🌐 **Remote Access**: Optional ngrok tunnel for server-based projects
 - ⚙️ **Configurable**: YAML + environment variables configuration
 
 ## Quick Setup
 
 ### 1. Install the Package
-```bash
-# Option 1: Install from PyPI (when published)
-pip install obsidian-project-sync
 
-# Option 2: Install from source
+#### For Development (this repository)
+```bash
 git clone https://github.com/yourusername/obsidian-project-sync.git
 cd obsidian-project-sync
-pip install -e .
+uv sync  # Creates .venv in this directory
+uv run obsidian-sync --help
+```
+
+#### For Use in Other Projects
+```bash
+# Method 1: Add as dependency with uv (recommended)
+uv add git+https://github.com/yourusername/obsidian-project-sync.git
+
+# Method 2: Install globally with uv
+uv tool install git+https://github.com/yourusername/obsidian-project-sync.git
+
+# Method 3: Install from local path (for development)
+uv add --editable /path/to/obsidian-project-sync
+
+# Method 4: Traditional pip install
+pip install git+https://github.com/yourusername/obsidian-project-sync.git
+```
+
+#### When Published to PyPI
+```bash
+uv add obsidian-project-sync
+# or
+pip install obsidian-project-sync
 ```
 
 ### 2. Initialize in Your Project
 ```bash
 cd your-project-directory
+# If installed with uv
+uv run obsidian-sync init
+
+# If installed with pip
 obsidian-sync init
 ```
 
@@ -45,12 +70,14 @@ cp .env.example .env
 ### 4. Setup Obsidian Local REST API
 1. Install [Local REST API plugin](https://github.com/coddingtonbear/obsidian-local-rest-api) in Obsidian
 2. Configure API key and host in plugin settings
-3. Optionally setup ngrok for remote access
+3. (Optional) Setup ngrok for remote access if needed
 
 ### 5. Test Connection
 ```bash
 make obsidian-test
-# or
+# or with uv
+uv run obsidian-sync test
+# or with pip
 obsidian-sync test
 ```
 
@@ -107,20 +134,19 @@ notifications:
 
 ### Command Line Interface
 ```bash
-# One-time sync
-obsidian-sync
+# With uv (recommended for development)
+uv run obsidian-sync                    # One-time sync
+uv run obsidian-sync --watch            # Continuous monitoring
+uv run obsidian-sync test               # Test connection
+uv run obsidian-sync config             # Check configuration
+uv run obsidian-sync init [project-name] # Initialize new project
 
-# Continuous monitoring
-obsidian-sync --watch
-
-# Test connection
-obsidian-sync test
-
-# Check configuration
-obsidian-sync config
-
-# Initialize new project
-obsidian-sync init [project-name]
+# With pip installation
+obsidian-sync                    # One-time sync
+obsidian-sync --watch            # Continuous monitoring
+obsidian-sync test               # Test connection
+obsidian-sync config             # Check configuration
+obsidian-sync init [project-name] # Initialize new project
 ```
 
 ### Makefile Integration
@@ -276,10 +302,12 @@ sync_manager.add_webhook(on_sync_complete)
 
 ### Debug Mode
 ```bash
-# Enable debug logging
-obsidian-sync --watch --log-level DEBUG
+# With uv
+uv run obsidian-sync --watch --log-level DEBUG
+uv run obsidian-sync test --verbose
 
-# Check connection details
+# With pip
+obsidian-sync --watch --log-level DEBUG
 obsidian-sync test --verbose
 ```
 

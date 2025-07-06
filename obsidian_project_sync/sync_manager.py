@@ -72,6 +72,13 @@ class ObsidianSyncManager:
             response = requests.request(method, url, **kwargs)
             response.raise_for_status()
             return response
+        except requests.HTTPError as e:
+            # 404 errors are expected when checking for non-existent files
+            if e.response.status_code == 404 and method == "GET":
+                self.logger.debug(f"API request {method} {endpoint}: {e} (expected for non-existent files)")
+            else:
+                self.logger.error(f"API request failed {method} {endpoint}: {e}")
+            raise
         except requests.RequestException as e:
             self.logger.error(f"API request failed {method} {endpoint}: {e}")
             raise
@@ -190,6 +197,12 @@ class ObsidianSyncManager:
             
             self.logger.debug(f"Note content retrieved successfully: {note_path}")
             return content
+        except requests.HTTPError as e:
+            if e.response.status_code == 404:
+                self.logger.debug(f"Note not found in vault {note_path}: {e} (this is normal for new files)")
+            else:
+                self.logger.error(f"Failed to get note content {note_path}: {e}")
+            return None
         except Exception as e:
             self.logger.error(f"Failed to get note content {note_path}: {e}")
             return None
